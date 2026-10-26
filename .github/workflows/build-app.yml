@@ -27,15 +27,15 @@ jobs:
           python -m pip install py2app
       - name: Build app bundle
         run: python setup.py py2app
-      - name: Zip app bundle
+      - name: Build DMG installer
         run: |
-          cd dist
-          APP_NAME=$(ls -d *.app | head -1)
-          zip -qry "UnfairPlay-macos.zip" "$APP_NAME"
+          APP_NAME=$(ls -d dist/*.app | head -1)
+          hdiutil create -volname "UnfairPlay" -srcfolder "dist/$APP_NAME" \
+            -ov -format UDZO "dist/UnfairPlay-macos.dmg"
       - uses: actions/upload-artifact@v4
         with:
           name: UnfairPlay-macos
-          path: dist/UnfairPlay-macos.zip
+          path: dist/UnfairPlay-macos.dmg
           if-no-files-found: error
 
   release:
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
-      - name: Attach zip to release
+      - name: Attach DMG to release
         uses: softprops/action-gh-release@v2
         with:
-          files: UnfairPlay-macos.zip
+          files: UnfairPlay-macos.dmg

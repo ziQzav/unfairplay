@@ -80,8 +80,9 @@ administrator-password dialog.
 ### Ready-made app
 
 A standalone macOS app (universal, with its own Python) is attached to every
-`v*` release as `UnfairPlay-macos.zip`: unzip and double-click `UnfairPlay.app`.
-The app is unsigned, so right-click and **Open** on first launch.
+`v*` release as `UnfairPlay-macos.dmg`: open the disk image and double-click
+`UnfairPlay.app`. The app is unsigned, so right-click and **Open** on first
+launch.
 
 ### From source
 
