@@ -1,0 +1,50 @@
+name: Build macOS app
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build universal unfairplay binary
+        run: |
+          go build -o unfairplay-arm64 ./cmd/unfairplay
+          GOARCH=amd64 go build -o unfairplay-amd64 ./cmd/unfairplay
+          lipo -create -output unfairplay unfairplay-arm64 unfairplay-amd64
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build app bundle
+        run: python setup.py py2app
+      - name: Zip app bundle
+        run: |
+          cd dist
+          APP_NAME=$(ls -d *.app | head -1)
+          zip -qry "UnfairPlay-macos.zip" "$APP_NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UnfairPlay-macos
+          path: dist/UnfairPlay-macos.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Attach zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: UnfairPlay-macos.zip
