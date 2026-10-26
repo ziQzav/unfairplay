@@ -30,7 +30,7 @@ jobs:
       - name: Build DMG installer
         run: |
           APP_NAME=$(ls -d dist/*.app | head -1)
-          hdiutil create -volname "UnfairPlay" -srcfolder "dist/$APP_NAME" \
+          hdiutil create -volname "UnfairPlay" -srcfolder "$APP_NAME" \
             -ov -format UDZO "dist/UnfairPlay-macos.dmg"
       - uses: actions/upload-artifact@v4
         with:
